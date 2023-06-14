@@ -1,26 +1,26 @@
 1. Create a Dockerfile with the following content:
 ```dockerfile
+    # Set base image
+    FROM python:3.9
 
-   # Set base image
-   FROM python:3.9
+    # Set working directory in container
+    WORKDIR /app
 
-   # Set working directory in container
-   WORKDIR /app
+    # Install required packages
+    COPY ./requirements.txt .
+    RUN pip install --no-cache-dir -r requirements.txt
 
-   # Copy project files to container
-   COPY . /app
+    # Copy project files to container
+    COPY . .
 
-   # Install required packages
-   RUN pip install --no-cache-dir -r requirements.txt
+    # Expose required ports
+    EXPOSE 8000
 
-   # Expose required ports
-   EXPOSE 8000
-
-   # Set default command to run the app
-   CMD ["python", "app.py"]
+    # Set default command to run the app
+    CMD ["python", "app.py"]
    
 ```
-2. In your project directory, create a new file called requirements.txt listing all the Python packages that your project depends on.
+2. In your project directory, create a new file called requirements.txt listing all the Python packages that your project depends on or simply use virtualenv and run `pip freeze > requirements.txt`.
 
 3. Run the following command in your project directory to build the Docker image: 
 
@@ -59,18 +59,20 @@ WORKDIR /app
 This line sets the working directory inside the container to /app. We'll use this directory to copy our project files and run the application.
 
 ```dockerfile
-# Copy project files to container
-COPY . /app
-```  
-
-This line tells Docker to copy all of the files in our local directory to the /app directory in the container.
-
-```dockerfile
 # Install required packages
+COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 ```
-
 This line installs the required packages defined in our requirements.txt file inside the container. pip is the Python package manager, and the `--no-cache-dir` flag tells it not to use any cache files since we're building a new image.
+
+*this line should be before copying the source code because when an upper layer is changed docker won't use the cached layer for pip and keeps downloading packges even if requirements.txt isn't changed.*
+
+```dockerfile
+# Copy project files to container
+COPY . .
+```  
+This line tells Docker to copy all of the files in our local directory to the /app directory in the container.
+
 
 ```dockerfile
 # Expose required ports

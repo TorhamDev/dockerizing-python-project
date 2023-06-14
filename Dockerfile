@@ -4,11 +4,12 @@ FROM python:3.9
 # Set working directory in container
 WORKDIR /app
 
-# Copy project files to container
-COPY . /app
-
 # Install required packages
+COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files to container
+COPY . .
 
 # Expose required ports
 EXPOSE 8000
